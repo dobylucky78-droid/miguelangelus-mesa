@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MiguelAngelus Mesa</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<!-- (0.0.12) tela de abertura, como a dos outros programas: fica enquanto a mesa manda o estado -->
+<div id="splash" class="splash">
+  <div class="splash-cartao">
+    <div class="splash-curva"></div>
+    <div class="splash-marca">
+      <img src="img/icone.svg" alt="">
+      <div class="splash-nome"><b>Miguel</b>Angelus <span class="splash-mesa">Mesa</span></div>
+      <div class="splash-sub">Mesa de som das celebrações</div>
+    </div>
+    <div class="splash-info">
+      <div class="splash-gratis"><b>Gratuito · programa livre</b></div>
+      <div id="splashVersao">&nbsp;</div>
+      <div>© 2026</div>
+      <div><b>PASCOM</b></div>
+      <div><b>São José Operário Ilha</b></div>
+    </div>
+    <div class="splash-status"><span class="splash-pontos"><i></i><i></i><i></i></span><span id="splashStatus">Abrindo…</span></div>
+  </div>
+</div>
+<div class="app" id="app">
+  <!-- (0.0.14) Sobre: igual aos outros programas da família (MiguelAngelus, Secretaria, Cast) -->
+  <dialog id="dlgSobre" class="sobre">
+    <form method="dialog">
+      <div class="sobre-topo"><img src="img/icone.svg" alt=""><div><div class="sobre-nome"><span class="dourado">Miguel</span>Angelus <span class="mesa">Mesa</span></div>
+        <div class="dica">Mesa de som das celebrações · <span id="sobreVersao"></span></div></div></div>
+      <p>O <b>MiguelAngelus Mesa</b> nasceu na <b>Paróquia São José Operário</b> para cuidar do som das celebrações. A mesa da igreja
+        já perdeu duas vezes tudo o que estava gravado nela; por isso o Mesa guarda shows, snapshots e presets <b>fora da mesa</b>,
+        no computador, e sabe mandar tudo de volta quando for preciso.</p>
+      <p>Mais do que um controle remoto, ele quer <b>ajudar quem serve no som</b>: mede o ganho de cada microfone e instrumento,
+        sugere um ponto de partida para cada voz e instrumento, mostra o que o gate, o compressor e o equalizador estão fazendo,
+        e deixa os músicos acertarem o próprio retorno pelo celular — para que a assembleia ouça bem e reze melhor.</p>
+      <p class="dica"><b>Miguel</b> + <b>Angelus</b>, como o programa do telão, que nasceu primeiro; <b>Mesa</b>, a mesa de som, onde
+        a voz de quem proclama a Palavra e o canto da comunidade passam antes de chegar a cada um.</p>
+      <div class="creditos">
+        <div class="credito"><img class="foto" src="img/foto-miguel.webp" alt="Miguel">
+          <div><span class="dica">Criou o MiguelAngelus</span><b>Miguel Aurelio Dutra Martins</b></div></div>
+        <div class="credito"><img class="foto" src="img/foto-marcio.webp" alt="Marcio">
+          <div><span class="dica">Idealizou e desenvolveu o Mesa</span><b>Marcio Aurelio Rios Martins</b></div></div>
+      </div>
+      <div class="sobre-brasoes">
+        <figure><img src="img/brasao-paroquia.webp" alt="Brasão da Paróquia São José Operário"><figcaption>Paróquia São José Operário (RJ)</figcaption></figure>
+        <figure><img src="img/brasao-pascom.webp" alt="Pascom"><figcaption>Pascom São José Operário</figcaption></figure>
+      </div>
+      <div class="sobre-redes">
+        <button type="button" data-link="https://pascom-sjo.github.io/">🌐 pascom-sjo.github.io</button>
+        <button type="button" data-link="https://www.youtube.com/@SaoJos%C3%A9Oper%C3%A1rioIlha">▶ São José Operário Ilha</button>
+        <button type="button" data-link="mailto:contato.miguelangelus@gmail.com">✉ contato.miguelangelus@gmail.com</button>
+      </div>
+      <p class="dica" style="text-align:center;margin:6px 0 0">Programa livre (licença MIT), feito para as paróquias.</p>
+      <div style="display:flex;justify-content:flex-end;margin-top:10px"><button class="prim" value="ok">OK</button></div>
+    </form>
+  </dialog>
+  <header>
+    <div class="marca" id="marca" title="Sobre o MiguelAngelus Mesa">
+      <img class="logo-mini" src="img/icone.svg" alt="">
+      <span class="nome"><span class="dourado">Miguel</span>Angelus <span class="mesa">Mesa</span></span>
+      <small id="versao"></small>
+    </div>
+    <nav>
+      <button class="navb sel" data-aba="mesa">🎛️ Mesa</button>
+      <button class="navb" data-aba="mixer">🎚️ Mixer</button>
+      <button class="navb" data-aba="biblioteca">💾 Biblioteca</button>
+      <button class="navb" data-aba="ajustes">⚙ Ajustes</button>
+    </nav>
+    <span class="espaco"></span>
+    <span class="pill" id="pillMesa"><span class="dot" id="dotMesa"></span><span id="txtMesa">Sem mesa</span></span>
+  </header>
+  <div class="faixa-teste" id="faixaTeste" hidden>CÓPIA DE TESTE: não abre com o Windows e guarda tudo numa pasta à parte.</div>
+
+  <main>
+    <!-- ============ MESA ============ -->
+    <section data-aba="mesa">
+      <div class="grade2">
+        <div class="pn">
+          <h3 class="rot">Agora na mesa</h3>
+          <div id="semMesa" class="vazio">
+            <p>Nenhuma mesa conectada.</p>
+            <p class="dica">Coloque o endereço da mesa em <b>⚙ Ajustes</b> (na Ui24R aparece no app da mesa, em Settings › Network).</p>
+          </div>
+          <div id="comMesa" hidden>
+            <div class="atual">
+              <div><span class="dica">Show</span><b id="mShow">—</b></div>
+              <div><span class="dica">Snapshot</span><b id="mSnap">—</b></div>
+              <div><span class="dica">Cue</span><b id="mCue">—</b></div>
+            </div>
+            <div class="dica" id="mModelo"></div>
+            <div class="linha" style="margin-top:12px">
+              <button class="prim" id="btnGuardarAtual" title="Guarda no programa o snapshot como a mesa está agora (com o mesmo nome)">💾 Guardar o snapshot atual no programa</button>
+              <button id="btnCompararAtual" title="Mostra o que mudou na mesa desde a versão guardada no programa">🔍 O que mudou desde o guardado?</button>
+            </div>
+          </div>
+        </div>
+        <div class="pn">
+          <h3 class="rot">Backup <span class="dica" id="resumoBackup"></span></h3>
+          <div id="listaBackup" class="dica">Conecte a mesa para conferir se tudo o que está gravado nela também está guardado no programa.</div>
+          <div class="linha" id="bkAcoes" style="margin-top:10px" hidden>
+            <button id="btnPendrive" title="A mesa grava o show inteiro (todos os snapshots e cues) num pendrive espetado nela. Não muda nada no som.">📀 Gravar no pendrive</button>
+            <span class="dica">Pendrive FAT32 (até 32 GB) espetado na mesa. Depois traga-o para este computador.</span>
+          </div>
+        </div>
+      </div>
+      <!-- (0.0.4) shows, snapshots e cues na mesa -->
+      <div class="pn" style="margin-top:14px">
+        <h3 class="rot">Shows, snapshots e cues na mesa</h3>
+        <div id="shMesa"></div>
+      </div>
+    </section>
+
+    <!-- ============ MIXER (0.0.2) ============ -->
+    <section data-aba="mixer" class="sec-mixer" hidden>
+     <div class="mx-layout">
+      <!-- (0.0.13) barra da esquerda: o botão do Mesa abre/recolhe as seções; a faixa de cima muda conforme a seção -->
+      <nav class="mx-rail" id="mxRail" aria-label="Seções do mixer">
+        <button class="mx-menu" id="mxMenu" title="Seções do mixer (clique de novo para recolher)" aria-expanded="true" aria-controls="mxLado"><img src="img/icone.svg" alt="Seções do mixer"></button>
+        <div class="mx-lado" id="mxLado">
+          <button class="mx-sec" data-sec="canais"><span class="ic">🎚️</span><span class="tx">Canais</span></button>
+          <button class="mx-sec" data-sec="aux"><span class="ic">🎧</span><span class="tx">Retornos (aux)</span></button>
+          <button class="mx-sec" data-sec="fx"><span class="ic">✨</span><span class="tx">Efeitos</span></button>
+          <button class="mx-sec" data-sec="vistas"><span class="ic">🗂️</span><span class="tx">Vistas</span></button>
+          <button class="mx-sec" data-sec="mudos"><span class="ic">🔇</span><span class="tx">Mudos e VCA</span></button>
+          <button class="mx-sec" data-sec="saidas"><span class="ic">🔊</span><span class="tx">Saídas e matrizes</span></button>
+          <button class="mx-sec" data-sec="rta"><span class="ic">📈</span><span class="tx">RTA e medições</span></button>
+        </div>
+      </nav>
+      <div class="mx-principal">
+      <div class="mx-topo">
+        <span class="mx-tsec" id="mxTSec"></span>
+        <div class="mx-camadas" id="mxCamadas" role="tablist" aria-label="O que os faders controlam"></div>
+        <div class="mx-grupos" id="mxGrupos" aria-label="Grupos de mudo"></div>
+        <div class="mx-saidas" id="mxSaidas"></div>
+        <div class="mx-vistas" id="mxVistas"></div>
+        <span class="espaco"></span>
+        <label class="chk mx-souso" title="Esconde as entradas sem nome e com o fader embaixo"><input type="checkbox" id="mxSoUso" checked> Só os canais em uso</label>
+      </div>
+      <div class="dica mx-explica" id="mxExplica"></div>
+      <div class="mx-corpo">
+        <div class="mx-tiras" id="mxTiras" title="Arraste o fundo (entre os canais) para os lados para ver mais canais"></div>
+        <div class="mx-master" id="mxMaster"></div>
+      </div>
+      <div class="canal" id="canal" hidden></div>
+      <div class="vazio" id="mxSemMesa" hidden><p>Conecte a mesa (⚙ Ajustes) para usar o mixer.</p></div>
+      </div>
+     </div>
+    </section>
+
+    <!-- ============ BIBLIOTECA ============ -->
+    <section data-aba="biblioteca" hidden>
+      <div class="pn">
+        <h3 class="rot">Guardar a mesa no programa
+          <span class="linha">
+            <button class="peq so-pc" id="btnImportar" title="Escolher a pasta Exports (pendrive ou cópia)">📂 Importar de uma pasta…</button>
+            <button class="peq so-pc" id="btnAbrirPasta" title="Abrir a pasta da biblioteca no Windows">🗂 Abrir a pasta</button>
+          </span>
+        </h3>
+        <div id="exports" class="dica"></div>
+        <details class="ajuda">
+          <summary>Como levar tudo da mesa para o programa pelo pendrive</summary>
+          <ol>
+            <li>Espete um pendrive <b>FAT32</b> (até 32 GB) na mesa.</li>
+            <li>Na aba 🎛️ Mesa, com a mesa conectada, use <b>Gravar no pendrive</b> (ou, no app da mesa: Shows › Export).</li>
+            <li>Espete o pendrive neste computador: o programa encontra a pasta <b>Exports</b> e oferece guardar.</li>
+          </ol>
+        </details>
+      </div>
+      <div class="bib">
+        <div class="pn bib-lista">
+          <h3 class="rot">Shows guardados <span class="dica" id="bibPasta"></span></h3>
+          <div id="bibShows" class="dica">Nada guardado ainda.</div>
+        </div>
+        <div class="pn bib-detalhe">
+          <h3 class="rot"><span id="cmpTitulo">Escolha um snapshot</span>
+            <span class="linha"><button class="peq" id="btnRecomparar" hidden>↻ Comparar de novo</button></span></h3>
+          <div id="cmp" class="dica">Clique num snapshot à esquerda para ver o que ele tem de diferente da mesa agora.</div>
+          <div class="linha cmp-acoes" id="cmpAcoes" hidden>
+            <span class="dica" id="cmpConta"></span>
+            <span class="espaco"></span>
+            <button class="prim" id="btnMandar">🎛️ Mandar para a mesa…</button>
+          </div>
+          <div class="barra" id="barra" hidden><i id="barraI"></i></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ AJUSTES ============ -->
+    <section data-aba="ajustes" hidden>
+      <div class="pn so-remoto" style="max-width:760px;margin-bottom:14px">
+        <h3 class="rot">📱 Este tablet</h3>
+        <p class="dica">Tablet do operador: o mesmo programa do computador, mexendo na mesma mesa. O que é do próprio computador (endereço da mesa, pastas, pendrive do computador, celulares pareados e o "trazer tudo") fica só lá.</p>
+        <div class="linha"><button id="btnEnxuta">📱 Usar a tela simples (só faders)</button><button id="btnEsquecer">Esquecer este aparelho</button></div>
+      </div>
+      <div class="pn so-pc" style="max-width:760px">
+        <h3 class="rot">Mesa de som</h3>
+        <label class="campo">Endereço da mesa (IP)
+          <span class="linha"><input id="ajIp" placeholder="ex.: 192.168.0.20" style="width:220px"><button id="btnConectar">Conectar</button></span>
+        </label>
+        <p class="dica">Por enquanto: Soundcraft Ui24R, Ui16 e Ui12, pela rede (cabo ou Wi-Fi). O computador precisa estar na mesma rede da mesa.</p>
+        <h3 class="rot" style="margin-top:18px">Programa</h3>
+        <label class="chk"><input type="checkbox" id="ajInicio"> Abrir junto com o Windows (começa minimizado)</label>
+        <label class="chk"><input type="checkbox" id="ajClaro"> Tema claro</label>
+        <p class="dica" id="ajPasta"></p>
+      </div>
+      <div class="pn" style="max-width:760px;margin-top:14px" id="trazerPn" data-so-pc>
+        <h3 class="rot">📥 Trazer e atualizar tudo da mesa</h3>
+        <p class="dica">Guarda no programa todos os shows, snapshots e cues gravados na mesa, e os presets do usuário. O que já estava guardado e mudou na mesa é atualizado (a versão anterior vai para o histórico); o que está igual fica como está.<br>
+          A mesa não deixa ler um snapshot sem carregá-lo: <b>o som muda várias vezes durante a cópia</b> (uns 6 s por snapshot). Use fora das celebrações. No fim a mesa volta exatamente como estava.</p>
+        <div class="linha" style="margin-top:8px">
+          <button class="prim" id="btnTrazer" disabled>📥 Trazer e atualizar</button>
+          <button id="btnPararTrazer" hidden>■ Parar</button>
+          <span class="dica" id="trazerInfo">Conecte a mesa primeiro.</span>
+        </div>
+      </div>
+      <div class="pn" style="max-width:760px;margin-top:14px" id="celPn" data-so-pc>
+        <h3 class="rot">📱 Celulares e tablets <span class="espaco"></span><button class="peq" id="celLigar">Desligado</button></h3>
+        <p class="dica" style="margin:0 0 8px">No mesmo Wi-Fi deste computador. O <b>operador</b>: no <b>tablet</b>, o programa completo (mixer, tela do canal, retornos, efeitos, snapshots), igual ao daqui; no <b>celular</b>, a tela simples com faders e mudos do mix principal e dos retornos.
+          O <b>músico</b> mexe só no retorno dele (o que ele ouve).
+          Na primeira vez, o Windows pode perguntar se libera a Mesa na rede: clique em <b>Permitir</b>.</p>
+        <div id="celPainel"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- confirmação antes de mexer na mesa -->
+  <dialog id="dlgMandar">
+    <form method="dialog">
+      <h3 style="margin-top:0">Mandar para a mesa?</h3>
+      <p id="dlgMandarTxt"></p>
+      <p class="aviso">⚠ O som muda <b>na hora</b>. Se houver celebração acontecendo, combine com quem está na mesa.</p>
+      <div class="linha" style="justify-content:flex-end">
+        <button value="nao">Cancelar</button>
+        <button value="sim" class="prim">Mandar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- (0.0.4) confirmação e nome -->
+<dialog id="dlgConf" class="pn dlg"><form method="dialog">
+  <h3 class="rot" id="dlgConfTit"></h3><p id="dlgConfTxt"></p>
+  <div class="linha" style="justify-content:flex-end"><button value="nao">Cancelar</button><button value="sim" class="prim" id="dlgConfSim">OK</button></div>
+</form></dialog>
+<dialog id="dlgNome" class="pn dlg"><form method="dialog">
+  <h3 class="rot" id="dlgNomeTit"></h3><p id="dlgNomeTxt"></p>
+  <input id="dlgNomeIn" maxlength="40" style="width:100%" autocomplete="off">
+  <div class="linha" style="justify-content:flex-end;margin-top:12px"><button value="nao" formnovalidate>Cancelar</button><button value="sim" class="prim" id="dlgNomeSim">OK</button></div>
+</form></dialog>
+<div class="toast" id="toast" hidden></div>
+</div>
+<script src="remoto.js"></script>
+<script src="app.js"></script>
+<script src="mixer.js"></script><script src="canal.js"></script>
+<script src="shows.js"></script>
+  <script src="lib/qrcode/qrcode.min.js"></script><script src="celpc.js"></script>
+</body>
+</html>

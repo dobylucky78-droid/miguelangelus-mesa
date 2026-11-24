@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    MiguelAngelus Mesa: controle da mesa de som digital e backup de shows, snapshots e cues FORA da mesa.
+    Código aberto (MIT). Começa pelas Soundcraft Ui (Ui12, Ui16, Ui24R), pela rede.
+    .NET 8, publicado "self-contained": não precisa instalar o .NET no computador da igreja.
+    Gerar:  dotnet publish -c Release -o "<pasta>"
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <PlatformTarget>x64</PlatformTarget>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <AssemblyName>MiguelAngelusMesa</AssemblyName>
+    <RootNamespace>MiguelAngelusMesa</RootNamespace>
+    <ApplicationIcon>icone.ico</ApplicationIcon>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <Version>0.0.14</Version>
+    <Product>MiguelAngelus Mesa</Product>
+    <Description>MiguelAngelus Mesa — controle e backup da mesa de som</Description>
+    <Copyright>Copyright (c) 2026 Marcio Aurelio Rios Martins — licença MIT</Copyright>
+    <DebugType Condition="'$(Configuration)' == 'Release'">none</DebugType>
+    <SatelliteResourceLanguages>pt-BR</SatelliteResourceLanguages>
+    <!-- o pacote do WebView2 traz também a parte de WPF, que não usamos -->
+    <NoWarn>$(NoWarn);MSB3277</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4314.35" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="web\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

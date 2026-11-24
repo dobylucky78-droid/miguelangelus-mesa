@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>MiguelAngelus Mesa — Arcanjo Miguel com a mesa de som</title>
+  <!-- Mesmo anjinho do MiguelAngelus; na Mesa: fundo verde, medidores de nível e uma mesa de som de rack (19", genérica, sem marca) -->
+  <defs>
+    <linearGradient id="ceu" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3fae66"/>
+      <stop offset="1" stop-color="#0c3d22"/>
+    </linearGradient>
+    <radialGradient id="brilho" cx="0.5" cy="0.36" r="0.5">
+      <stop offset="0" stop-color="#f4ffe0" stop-opacity=".5"/>
+      <stop offset="1" stop-color="#f4ffe0" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="asa" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e6f7e9"/>
+    </linearGradient>
+    <linearGradient id="capa" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f2b632"/>
+      <stop offset="1" stop-color="#c58a12"/>
+    </linearGradient>
+    <linearGradient id="tunica" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4f95ec"/>
+      <stop offset="1" stop-color="#2d6cc4"/>
+    </linearGradient>
+    <linearGradient id="painel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4a5468"/>
+      <stop offset="1" stop-color="#1e2433"/>
+    </linearGradient>
+    <linearGradient id="orelha" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c9d0dc"/>
+      <stop offset="1" stop-color="#8a93a3"/>
+    </linearGradient>
+    <clipPath id="moldura"><rect width="512" height="512" rx="112"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#moldura)">
+    <rect width="512" height="512" fill="url(#ceu)"/>
+    <circle cx="256" cy="200" r="230" fill="url(#brilho)"/>
+
+    <!-- medidores de nível (no lugar das ondas do Cast) -->
+    <g stroke-linecap="round" stroke-width="13">
+      <line x1="58"  y1="214" x2="58"  y2="170" stroke="#ffd95a" opacity=".9"/>
+      <line x1="84"  y1="214" x2="84"  y2="120" stroke="#ffd95a" opacity=".9"/>
+      <line x1="110" y1="214" x2="110" y2="146" stroke="#ffd95a" opacity=".9"/>
+      <line x1="84"  y1="100" x2="84"  y2="96"  stroke="#ff8a5a"/>
+      <line x1="402" y1="214" x2="402" y2="140" stroke="#ffd95a" opacity=".9"/>
+      <line x1="428" y1="214" x2="428" y2="104" stroke="#ffd95a" opacity=".9"/>
+      <line x1="454" y1="214" x2="454" y2="164" stroke="#ffd95a" opacity=".9"/>
+      <line x1="428" y1="84"  x2="428" y2="80"  stroke="#ff8a5a"/>
+    </g>
+
+    <!-- asas -->
+    <g stroke="#b9e3c3" stroke-width="5" stroke-linejoin="round" fill="url(#asa)">
+      <path d="M206 262 C150 214 92 212 52 250 C66 258 76 268 80 280 C62 290 54 304 54 320 C78 312 96 314 108 324 C98 340 98 356 104 370 C128 350 150 340 176 338 C188 316 200 292 212 276 Z"/>
+      <path d="M306 262 C362 214 420 212 460 250 C446 258 436 268 432 280 C450 290 458 304 458 320 C434 312 416 314 404 324 C414 340 414 356 408 370 C384 350 362 340 336 338 C324 316 312 292 300 276 Z"/>
+    </g>
+    <g stroke="#b9e3c3" stroke-width="4" stroke-linecap="round" fill="none">
+      <path d="M90 262 C124 266 156 280 186 300"/>
+      <path d="M92 306 C124 306 152 316 180 328"/>
+      <path d="M422 262 C388 266 356 280 326 300"/>
+      <path d="M420 306 C388 306 360 316 332 328"/>
+    </g>
+
+    <!-- capa dourada e túnica -->
+    <path d="M188 250 L128 530 L384 530 L324 250 Z" fill="url(#capa)"/>
+    <path d="M200 252 Q256 232 312 252 L352 530 L160 530 Z" fill="url(#tunica)"/>
+    <path d="M226 246 Q256 272 286 246" fill="none" stroke="#ffd95a" stroke-width="7" stroke-linecap="round"/>
+    <rect x="178" y="430" width="156" height="18" rx="6" fill="#f2b632"/>
+
+    <!-- braços (mais abertos: a mesa de rack é larga) -->
+    <path d="M204 262 C168 288 146 318 150 350" fill="none" stroke="#2d6cc4" stroke-width="30" stroke-linecap="round"/>
+    <path d="M308 262 C344 288 366 318 362 350" fill="none" stroke="#2d6cc4" stroke-width="30" stroke-linecap="round"/>
+
+    <!-- mesa de som de rack (19", 2U), genérica -->
+    <g transform="rotate(-3 256 350)">
+      <!-- orelhas de rack com os furos dos parafusos -->
+      <rect x="120" y="304" width="30" height="92" rx="6" fill="url(#orelha)"/>
+      <rect x="362" y="304" width="30" height="92" rx="6" fill="url(#orelha)"/>
+      <g fill="#5b6475"><circle cx="135" cy="322" r="5"/><circle cx="135" cy="378" r="5"/><circle cx="377" cy="322" r="5"/><circle cx="377" cy="378" r="5"/></g>
+      <!-- corpo -->
+      <rect x="144" y="300" width="224" height="100" rx="10" fill="url(#painel)"/>
+      <rect x="144" y="300" width="224" height="8" rx="4" fill="#6b7891" opacity=".6"/>
+      <!-- entradas (conectores combo) -->
+      <g fill="#11151f" stroke="#7e8aa0" stroke-width="2">
+        <circle cx="168" cy="330" r="10"/><circle cx="194" cy="330" r="10"/><circle cx="220" cy="330" r="10"/><circle cx="246" cy="330" r="10"/>
+        <circle cx="272" cy="330" r="10"/><circle cx="298" cy="330" r="10"/>
+      </g>
+      <g fill="#7e8aa0"><circle cx="168" cy="330" r="3"/><circle cx="194" cy="330" r="3"/><circle cx="220" cy="330" r="3"/><circle cx="246" cy="330" r="3"/><circle cx="272" cy="330" r="3"/><circle cx="298" cy="330" r="3"/></g>
+      <!-- botões -->
+      <g fill="#d7dde8">
+        <circle cx="168" cy="368" r="8"/><circle cx="194" cy="368" r="8"/><circle cx="220" cy="368" r="8"/><circle cx="246" cy="368" r="8"/>
+        <circle cx="272" cy="368" r="8"/><circle cx="298" cy="368" r="8"/>
+      </g>
+      <g stroke="#2a3142" stroke-width="2.5" stroke-linecap="round">
+        <line x1="168" y1="368" x2="164" y2="362"/><line x1="194" y1="368" x2="198" y2="362"/><line x1="220" y1="368" x2="220" y2="361"/>
+        <line x1="246" y1="368" x2="241" y2="364"/><line x1="272" y1="368" x2="277" y2="363"/><line x1="298" y1="368" x2="294" y2="362"/>
+      </g>
+      <!-- medidor de LEDs e o LED de ligado -->
+      <g>
+        <rect x="320" y="318" width="34" height="58" rx="6" fill="#11151f"/>
+        <rect x="326" y="324" width="9" height="7" rx="2" fill="#ff5a4a"/><rect x="339" y="324" width="9" height="7" rx="2" fill="#5a2a2a"/>
+        <rect x="326" y="335" width="9" height="7" rx="2" fill="#ffd95a"/><rect x="339" y="335" width="9" height="7" rx="2" fill="#ffd95a"/>
+        <rect x="326" y="346" width="9" height="7" rx="2" fill="#5fe07a"/><rect x="339" y="346" width="9" height="7" rx="2" fill="#5fe07a"/>
+        <rect x="326" y="357" width="9" height="7" rx="2" fill="#5fe07a"/><rect x="339" y="357" width="9" height="7" rx="2" fill="#5fe07a"/>
+        <circle cx="337" cy="388" r="4" fill="#5fe07a"/>
+      </g>
+    </g>
+
+    <!-- mãos (seguram as orelhas da mesa) -->
+    <circle cx="146" cy="352" r="16" fill="#f6c9a0"/>
+    <circle cx="366" cy="346" r="16" fill="#f6c9a0"/>
+
+    <!-- cabeça -->
+    <rect x="240" y="226" width="32" height="28" rx="10" fill="#e9b88c"/>
+    <circle cx="256" cy="186" r="60" fill="#f6c9a0"/>
+    <circle cx="197" cy="194" r="11" fill="#f0bd92"/>
+    <circle cx="315" cy="194" r="11" fill="#f0bd92"/>
+    <path d="M196 188 C188 146 214 118 256 118 C298 118 324 146 316 188 C308 172 298 162 286 158 C280 170 262 172 250 162 C240 172 222 172 214 160 C204 166 198 176 196 188 Z" fill="#8a5a2b"/>
+    <g fill="#8a5a2b">
+      <circle cx="206" cy="150" r="16"/><circle cx="230" cy="130" r="18"/><circle cx="258" cy="122" r="18"/>
+      <circle cx="286" cy="130" r="18"/><circle cx="306" cy="150" r="16"/>
+    </g>
+    <ellipse cx="234" cy="194" rx="8" ry="10" fill="#2b1d16"/>
+    <ellipse cx="278" cy="194" rx="8" ry="10" fill="#2b1d16"/>
+    <circle cx="237" cy="190" r="3" fill="#fff"/>
+    <circle cx="281" cy="190" r="3" fill="#fff"/>
+    <circle cx="218" cy="214" r="10" fill="#f28b8b" opacity=".45"/>
+    <circle cx="294" cy="214" r="10" fill="#f28b8b" opacity=".45"/>
+    <path d="M238 220 Q256 238 274 220" fill="none" stroke="#7a3b2e" stroke-width="5" stroke-linecap="round"/>
+
+    <!-- auréola -->
+    <ellipse cx="256" cy="96" rx="66" ry="17" fill="none" stroke="#ffd95a" stroke-width="12"/>
+    <ellipse cx="256" cy="96" rx="66" ry="17" fill="none" stroke="#fff3b8" stroke-width="3" opacity=".8"/>
+
+    <!-- selo: faders -->
+    <circle cx="428" cy="430" r="40" fill="#ffffff"/>
+    <g stroke="#1f8a4c" stroke-width="5" stroke-linecap="round">
+      <line x1="412" y1="408" x2="412" y2="452"/><line x1="428" y1="408" x2="428" y2="452"/><line x1="444" y1="408" x2="444" y2="452"/>
+    </g>
+    <g fill="#1f8a4c">
+      <rect x="403" y="432" width="18" height="10" rx="3"/><rect x="419" y="414" width="18" height="10" rx="3"/><rect x="435" y="426" width="18" height="10" rx="3"/>
+    </g>
+  </g>
+</svg>

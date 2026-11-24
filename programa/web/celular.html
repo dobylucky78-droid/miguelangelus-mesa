@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0f1420">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mesa">
+<title>MiguelAngelus Mesa</title>
+<script>
+  // (0.0.13) aparelho antigo (ex.: iPad 2 / iOS 9): esta página não roda nele; vai para a versão simples
+  try { if (!window.fetch || !window.Promise || typeof Symbol === 'undefined' || !('PointerEvent' in window) && !('ontouchstart' in window)) location.replace('/antigo.html' + location.search); else eval('(a => a?.b ?? 1)({})'); }
+  catch (e) { location.replace('/antigo.html' + location.search); }
+</script>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icone.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icone.svg">
+<!-- (0.0.10) Mesa pelo celular e pelo tablet: faders em linhas (deslizar para os lados), mudo e medidor.
+     Arrastar para os lados muda o volume a partir de onde está (não pula); para cima/baixo rola a lista. -->
+<style>
+  :root { --bg: #0f1420; --pn: #18202f; --pn2: #222c3f; --bd: #2f3a50; --tx: #eef1f6; --su: #9aa6ba; --ac: #d4a93a; --mudo: #e0463c; --ok: #3fb950; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--tx); font: 16px/1.35 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  body { display: flex; flex-direction: column; overscroll-behavior: none; -webkit-user-select: none; user-select: none; }
+  button, select { font: inherit; color: inherit; background: var(--pn2); border: 1px solid var(--bd); border-radius: 12px; padding: 10px 12px; touch-action: manipulation; }
+  button:active { filter: brightness(1.25); }
+  input { font: inherit; color: var(--tx); background: var(--pn2); border: 1px solid var(--bd); border-radius: 10px; padding: 12px; width: 100%; -webkit-user-select: text; user-select: text; }
+  [hidden] { display: none !important; }
+  .topo { display: flex; align-items: center; gap: 8px; padding: calc(8px + env(safe-area-inset-top, 0px)) 12px 8px; background: var(--pn); border-bottom: 1px solid var(--bd); }
+  .pt { width: 10px; height: 10px; border-radius: 50%; background: var(--su); flex: none; } .pt.on { background: var(--ok); }
+  .topo .nome { flex: 1; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .topo .nome b { color: var(--ac); }
+  .faixa { background: #7a5b00; color: #fff; text-align: center; font-size: 14px; padding: 6px; }
+  .barra { display: flex; gap: 8px; padding: 8px 12px; background: var(--bg); border-bottom: 1px solid var(--bd); align-items: center; }
+  .barra select { flex: 1; min-width: 0; padding: 9px 10px; }
+  .barra .titulo { flex: 1; font-weight: 700; font-size: 17px; }
+  main { flex: 1; overflow-y: auto; padding: 8px 12px; display: grid; gap: 8px; align-content: start; grid-template-columns: 1fr; }
+  @media (min-width: 720px) { main { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1100px) { main { grid-template-columns: 1fr 1fr 1fr; } }
+  .grp { grid-column: 1 / -1; font-size: 12px; color: var(--su); text-transform: uppercase; letter-spacing: .06em; margin: 6px 2px 0; }
+  .ln { display: grid; grid-template-columns: 1fr 56px; grid-template-rows: auto auto; gap: 4px 8px; background: var(--pn); border: 1px solid var(--bd); border-left: 5px solid var(--c, var(--bd)); border-radius: 12px; padding: 8px 10px 9px; }
+  .ln .nm { display: flex; gap: 6px; align-items: baseline; min-width: 0; }
+  .ln .nm b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ln .nm small { color: var(--su); font-size: 12px; white-space: nowrap; }
+  .ln .db { margin-left: auto; font: 600 14px Consolas, monospace; color: var(--su); white-space: nowrap; }
+  .ln .mu { grid-row: 1 / 3; grid-column: 2; padding: 0; font-weight: 800; border-radius: 10px; }
+  .ln .mu.on { background: var(--mudo); border-color: var(--mudo); color: #fff; }
+  .ln.mudo .fd i { background: #6b4a47; }
+  .fd { position: relative; height: 38px; border-radius: 9px; background: #0b0f18; border: 1px solid var(--bd); touch-action: pan-y; overflow: hidden; }
+  .fd i { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, #2d6b3a, #3fb950); border-radius: 8px 0 0 8px; }
+  .fd b { position: absolute; top: 2px; bottom: 2px; width: 14px; margin-left: -7px; border-radius: 5px; background: #eef1f6; box-shadow: 0 0 0 1px #0007; }
+  .fd .zero { position: absolute; top: 0; bottom: 0; width: 2px; background: #fff4; }
+  .fd .vu { position: absolute; left: 0; bottom: 0; height: 4px; background: #46c15a; opacity: .9; transition: width .08s linear; }
+  .fd .vu.alto { background: #e9c23a; } .fd .vu.pico { background: #e0463c; }
+  .fd.mexendo { border-color: var(--ac); }
+  .mestre { padding: 8px 12px calc(10px + env(safe-area-inset-bottom, 0px)); background: var(--pn); border-top: 1px solid var(--bd); }
+  .mestre .ln { border-color: var(--ac); border-left-color: var(--ac); }
+  .tela-cheia { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; gap: 14px; z-index: 10; }
+  .tela-cheia h1 { margin: 0; font-size: 24px; } .tela-cheia h1 b { color: var(--ac); }
+  .tela-cheia .campo { width: 100%; max-width: 320px; text-align: left; }
+  .tela-cheia label { font-size: 13px; color: var(--su); display: block; margin-bottom: 4px; }
+  .codigo { font: 700 34px/1 Consolas, monospace !important; letter-spacing: 10px; text-align: center; }
+  .acao { background: var(--ac) !important; color: #1b1503 !important; border: 0 !important; font-weight: 700; width: 100%; max-width: 320px; font-size: 17px; padding: 14px; }
+  .erro { color: #ff8a80; min-height: 1.3em; font-size: 14px; }
+  .sutil { color: var(--su); font-size: 13px; }
+  .vazio { grid-column: 1 / -1; color: var(--su); text-align: center; padding: 30px 10px; }
+  .fd .zero { left: var(--z); }
+  #palco { display: contents; }
+  #rail { display: none; }
+  /* (0.0.13) tablet: o layout do computador — barra da esquerda com o botão do Mesa, canais em pé (faders verticais), master à direita */
+  body.tablet #palco { display: flex; flex: 1; min-height: 0; }
+  body.tablet #rail { display: flex; flex-direction: column; gap: 6px; padding: 8px; border-right: 1px solid var(--bd); background: var(--pn); width: 64px; transition: width .18s; overflow: hidden; flex: none; }
+  body.tablet #rail.aberto { width: 210px; }
+  body.tablet #rail .menu { width: 48px; height: 48px; padding: 4px; display: grid; place-items: center; }
+  body.tablet #rail .menu img { width: 36px; height: 36px; }
+  body.tablet #rail.aberto .menu { border-color: var(--ac); }
+  body.tablet #rail .op { text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 14px; padding: 10px; }
+  body.tablet #rail:not(.aberto) .op { display: none; }
+  body.tablet #rail .op.sel { background: #3a300f; border-color: var(--ac); color: var(--ac); font-weight: 700; }
+  body.tablet #rail .rt { font-size: 11px; color: var(--su); text-transform: uppercase; letter-spacing: .06em; margin: 6px 2px 0; }
+  body.tablet #rail:not(.aberto) .rt { display: none; }
+  body.tablet #selCamada { display: none; }
+  body.tablet main { display: flex; flex-direction: row; gap: 6px; overflow-x: auto; overflow-y: hidden; padding: 10px; align-items: stretch; }
+  body.tablet .grp { writing-mode: vertical-rl; transform: rotate(180deg); margin: 0; padding: 4px 2px; border-left: 1px solid var(--bd); flex: none; text-align: center; }
+  body.tablet .ln { display: flex; flex-direction: column; align-items: stretch; width: 86px; flex: none; padding: 8px 6px; gap: 6px; border-left-width: 1px; border-top: 5px solid var(--c, var(--bd)); }
+  body.tablet .ln .nm { flex-direction: column; align-items: center; gap: 0; text-align: center; min-height: 40px; }
+  body.tablet .ln .nm b { font-size: 13px; max-width: 74px; }
+  body.tablet .ln .db { margin: 4px 0 0; font-size: 13px; order: 3; }
+  body.tablet .ln .mu { grid-row: auto; height: 46px; }
+  body.tablet .fd { flex: 1; height: auto; width: 46px; align-self: center; touch-action: pan-x; }
+  body.tablet .fd i { top: auto; right: 0; bottom: 0; width: auto !important; border-radius: 0 0 8px 8px; background: linear-gradient(0deg, #2d6b3a, #3fb950); }
+  body.tablet .fd b { top: auto; left: 2px !important; right: 2px; width: auto; height: 14px; margin: 0 0 -7px; }
+  body.tablet .fd .zero { left: 0; right: 0; width: auto; height: 2px; top: auto; bottom: var(--z); }
+  body.tablet .fd .vu { width: 5px !important; left: auto; right: 0; top: auto; height: 0; }
+  body.tablet .mestre { border-top: 0; border-left: 1px solid var(--bd); padding: 10px; display: flex; flex: none; }
+  body.tablet .mestre .ln { width: 100px; }
+  .toast { position: fixed; left: 50%; bottom: 120px; transform: translateX(-50%); background: #333e; color: #fff; padding: 9px 16px; border-radius: 20px; font-size: 14px; z-index: 20; pointer-events: none; transition: opacity .3s; max-width: 90%; text-align: center; }
+</style>
+</head>
+<body>
+
+<div id="par" class="tela-cheia" hidden>
+  <img src="/icone.svg" alt="" style="width:96px;height:96px">
+  <h1><b>Miguel</b>Angelus Mesa</h1>
+  <div class="sutil">Mesa de som pelo celular ou tablet</div>
+  <div class="campo"><label for="parCod">Código que aparece no computador</label>
+    <input id="parCod" class="codigo" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="0000"></div>
+  <div class="campo"><label for="parNome">Nome deste aparelho</label>
+    <input id="parNome" maxlength="40" placeholder="Tablet do som"></div>
+  <button id="parOk" class="acao">Conectar</button>
+  <div id="parErro" class="erro"></div>
+  <div class="sutil">No computador: MiguelAngelus Mesa › Ajustes › 📱 Celulares e tablets</div>
+</div>
+
+<div class="topo">
+  <span id="pt" class="pt"></span>
+  <img src="/icone.svg" alt="" style="width:28px;height:28px;border-radius:7px">
+  <span class="nome"><b>Miguel</b>Angelus Mesa</span>
+  <span id="quem" class="sutil"></span>
+</div>
+<div id="faixa" class="faixa" hidden>Reconectando…</div>
+<div class="barra">
+  <select id="selCamada" aria-label="O que mexer" hidden></select>
+  <span id="titulo" class="titulo" hidden></span>
+  <select id="selVista" aria-label="Quais canais" style="flex:.8"></select>
+</div>
+<div id="palco">
+  <nav id="rail" aria-label="O que mexer"><button class="menu" id="railMenu" aria-label="Escolher o que mexer"><img src="/icone.svg" alt=""></button><div id="railOps"></div></nav>
+  <main id="lista"></main>
+  <div class="mestre" id="mestre"></div>
+</div>
+<div id="toast" class="toast" style="opacity:0"></div>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const CHAVE = 'mesa.celular.token', CH_CAM = 'mesa.celular.camada', CH_VISTA = 'mesa.celular.vista';
+const ler = k => { try { return localStorage.getItem(k) || ''; } catch (_) { return ''; } };
+const gravar = (k, v) => { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch (_) {} };
+let token = ler(CHAVE), perfil = '', camada = ler(CH_CAM) || 'lr', vista = ler(CH_VISTA) || 'uso';
+// (0.0.13) tablet (tela larga): layout como o do computador; celular: linhas
+const mqTablet = matchMedia('(min-width: 768px) and (min-height: 480px)');
+let tablet = mqTablet.matches; document.body.classList.toggle('tablet', tablet);
+mqTablet.addEventListener('change', () => { tablet = mqTablet.matches; document.body.classList.toggle('tablet', tablet); estrutura = ''; if (E) montar(); });
+let E = null, ultimoOk = 0, relogio = 0, tt = 0, estrutura = '';
+const mexendo = {}, pendente = {};
+let envioTimer = 0;
+
+// ---------- curva do fader (a mesma fórmula do app da própria mesa: VtoLIN; 0 dB ≈ 0,7637; 1 = +10 dB) ----------
+const vtoLin = a => 2.676529517952372E-4 * Math.exp(a * (23.90844819639692 + a * (-26.23877598214595 + (12.195249692570245 - .4878099877028098 * a) * a))) * (a < .055 ? Math.sin(28.559933214452666 * a) : 1);
+const paraDb = f => { if (f < 0.001) return -Infinity; const l = vtoLin(f); return l < 1e-10 ? -Infinity : 20 * Math.log10(l); };
+function deDb(db) { let a = 0.001, b = 1; for (let i = 0; i < 40; i++) { const m = (a + b) / 2; if (paraDb(m) < db) a = m; else b = m; } return (a + b) / 2; }
+const ZERO = deDb(0);
+const txtDb = f => { let d = paraDb(f); if (d === -Infinity) return '−∞'; d = Math.round(d * 10) / 10; return d === 0 ? '0,0' : (d > 0 ? '+' : '') + d.toFixed(1).replace('.', ',').replace('-', '−'); };
+const CORES = ['', '#111111', '#8B0000', '#FF0000', '#FFA500', '#FFFF00', '#56DE43', '#0091C2', '#9400D3', '#808080', '#FFFFFF', '#FF1493'];
+
+const val = k => E?.v?.[k];
+const num = k => { const x = parseFloat(val(k)); return isNaN(x) ? 0 : x; };
+const QTD = () => { const m = val('model') || E?.modelo; return m === 'ui12' ? { i: 8, l: 2, p: 2, f: 4, s: 0, v: 0, a: 4 } : m === 'ui16' ? { i: 12, l: 2, p: 2, f: 4, s: 0, v: 0, a: 6 } : { i: 24, l: 2, p: 2, f: 4, s: 6, v: 6, a: 10 }; };
+const NUM = { i: n => `${n + 1}`, l: n => n ? 'Line R' : 'Line L', p: n => n ? 'Player R' : 'Player L', f: n => `FX ${n + 1}`, s: n => `Sub ${n + 1}`, v: n => `VCA ${n + 1}`, a: n => `Aux ${n + 1}` };
+const GRUPO = { i: 'Entradas', l: 'Line in', p: 'Player', f: 'Retornos de FX', s: 'Subgrupos', v: 'VCA', a: 'Aux (volume de cada saída)' };
+const nome = (t, n) => val(`${t}.${n}.name`) || '';
+const ehMatriz = a => val(`a.${a}.matrix`) === '1';
+function parceiro(t, n) {
+  if (!'ilp'.includes(t)) return null;
+  const si = i => val(`${t}.${i}.stereoIndex`);
+  if (si(n) === '0' && si(n + 1) === '1') return n + 1;
+  if (si(n) === '1' && n > 0 && si(n - 1) === '0') return n - 1;
+  return null;
+}
+
+function toast(t) { const e = $('#toast'); e.textContent = t; e.style.opacity = 1; clearTimeout(tt); tt = setTimeout(() => e.style.opacity = 0, 2200); }
+function vibrar(ms = 12) { try { navigator.vibrate && navigator.vibrate(ms); } catch (_) {} }
+function conectado(sim) { $('#pt').classList.toggle('on', sim); $('#faixa').hidden = sim; }
+
+// ---------- as tiras da camada ----------
+function tiras() {
+  const q = QTD(), l = [];
+  const ehAux = camada !== 'lr', alvo = ehAux ? +camada.slice(2) : -1;
+  const tipos = ehAux ? [['i', q.i], ['l', q.l], ['p', q.p], ['f', q.f]] : [['i', q.i], ['l', q.l], ['p', q.p], ['f', q.f], ['s', q.s], ['v', q.v], ['a', q.a]];
+  for (const [t, qt] of tipos) for (let n = 0; n < qt; n++) {
+    const k = ehAux ? `${t}.${n}.aux.${alvo}.value` : `${t}.${n}.mix`, km = ehAux ? `${t}.${n}.aux.${alvo}.mute` : `${t}.${n}.mute`;
+    if (val(k) === undefined) continue;
+    const p = parceiro(t, n);
+    if (p === n - 1) continue;                                       // a direita do par estéreo vai junto com a esquerda
+    const x = { t, n, k, km, rot: nome(t, n) || (p === n + 1 ? nome(t, p) : ''), num: NUM[t](n), cor: CORES[+(val(`${t}.${n}.color`) || 0)] || '' };
+    if (p === n + 1) { x.par = p; x.k2 = k.replace(`${t}.${n}.`, `${t}.${p}.`); x.km2 = km.replace(`${t}.${n}.`, `${t}.${p}.`); x.num = t === 'i' ? `${n + 1}-${n + 2}` : t === 'l' ? 'Line L-R' : 'Player L-R'; }
+    if (!ehAux && t === 'a' && ehMatriz(n)) x.num = `Matriz ${n + 1}`;
+    x.usada = x.rot !== '' || num(k) > 0.01 || (x.k2 && num(x.k2) > 0.01);
+    l.push(x);
+  }
+  if (/^\d+$/.test(vista) && E?.vistas?.[+vista]) {
+    const vs = E.vistas[+vista], ordem = vs.Canais || [];
+    return ordem.map(c => { const [t, n] = c.split(':'); return l.find(x => x.t === t && (x.n === +n || x.par === +n)); }).filter((x, i, a) => x && a.indexOf(x) === i);
+  }
+  return vista === 'todos' ? l : l.filter(x => x.usada);
+}
+
+function linhaHtml(x, mestre) {
+  const z = (ZERO * 100).toFixed(2);
+  return `<div class="ln" data-k="${esc(x.k)}" style="${x.cor ? `--c:${x.cor}` : ''}">
+    <div class="nm"><b>${esc(x.rot || x.num)}</b>${x.rot ? `<small>${esc(x.num)}</small>` : '<small>&nbsp;</small>'}<span class="db" data-dbl="1">—</span></div>
+    <div class="fd" data-k="${esc(x.k)}"><span class="vu"></span><span class="zero" style="--z:${z}%"></span><i></i><b></b></div>
+    <button class="mu" data-km="${esc(x.km)}" aria-label="Mudo">M</button></div>`;
+}
+
+let mapa = new Map();     // chave do fader → tira
+function montar() {
+  if (!E) return;
+  const ehAux = camada !== 'lr', alvo = ehAux ? +camada.slice(2) : -1;
+  // seletor da camada (operador) ou título fixo (músico)
+  const sc = $('#selCamada'), ti = $('#titulo');
+  if (perfil === 'operador') {
+    const q = QTD(), op = ['<option value="lr">Mix principal</option>'];
+    for (let a = 0; a < q.a; a++) if (!ehMatriz(a)) op.push(`<option value="a.${a}">Retorno: ${esc(nome('a', a) || `Aux ${a + 1}`)}</option>`);
+    const html = op.join(''); if (sc.dataset.h !== html) { sc.innerHTML = html; sc.dataset.h = html; }
+    sc.value = camada; sc.hidden = false; ti.hidden = true;
+    // (0.0.13) tablet: as mesmas opções na barra da esquerda
+    const ro = [['lr', 'Mix principal']]; for (let a = 0; a < q.a; a++) if (!ehMatriz(a)) ro.push([`a.${a}`, nome('a', a) || `Aux ${a + 1}`]);
+    $('#railOps').innerHTML = `<div class="rt">Mix</div>` + ro.map(([v, t], i) => (i === 1 ? '<div class="rt">Retornos</div>' : '') + `<button class="op ${v === camada ? 'sel' : ''}" data-cam="${esc(v)}">${esc(t)}</button>`).join('');
+    if (window.PointerEvent) { $('#railOps').insertAdjacentHTML('beforeend', '<div class="rt">Programa</div><button class="op" id="opCompleto">🖥 Completo</button>'); $('#opCompleto').onclick = () => { gravar('mesa.celular.enxuta', ''); location.href = '/app/index.html'; }; }
+    for (const b of document.querySelectorAll('#railOps .op[data-cam]')) b.onclick = () => { camada = b.dataset.cam; gravar(CH_CAM, camada); estrutura = ''; E = null; $('#lista').innerHTML = ''; puxar(); };
+    $('#rail').hidden = false;
+  } else { sc.hidden = true; ti.hidden = false; ti.textContent = 'Meu retorno: ' + (nome('a', alvo) || `Aux ${alvo + 1}`); $('#rail').hidden = true; }
+  const sv = $('#selVista'), ops = [['uso', 'Canais em uso'], ['todos', 'Todos os canais'], ...((E.vistas || []).map((x, i) => [String(i), 'Vista: ' + x.Nome]))];
+  const hv = ops.map(([v, t]) => `<option value="${esc(v)}">${esc(t)}</option>`).join(''); if (sv.dataset.h !== hv) { sv.innerHTML = hv; sv.dataset.h = hv; }
+  if (!ops.some(o => o[0] === vista)) vista = 'uso';
+  sv.value = vista;
+
+  const l = tiras();
+  let html = '', g = '';
+  for (const x of l) { if (!/^\d+$/.test(vista) && GRUPO[x.t] !== g) { g = GRUPO[x.t]; html += `<div class="grp">${esc(g)}</div>`; } html += linhaHtml(x); }
+  $('#lista').innerHTML = html || `<div class="vazio">${vista === 'uso' ? 'Nenhum canal em uso nesta camada. Escolha "Todos os canais".' : 'Nada para mostrar.'}</div>`;
+  const mestre = ehAux ? { t: 'a', n: alvo, k: `a.${alvo}.mix`, km: `a.${alvo}.mute`, rot: (nome('a', alvo) || `Aux ${alvo + 1}`), num: 'volume do retorno', cor: '' }
+    : { t: 'm', n: 0, k: 'm.mix', km: 'm.mute', rot: 'Master', num: 'LR', cor: '' };
+  if (perfil !== 'operador' && ehAux) mestre.km = null;    // o músico não emudece a própria saída (evita "sumiu o retorno")
+  $('#mestre').innerHTML = linhaHtml(mestre).replace('<button class="mu"', mestre.km ? '<button class="mu"' : '<button class="mu" hidden');
+  mapa = new Map(); for (const x of [...l, mestre]) mapa.set(x.k, x);
+  ligar(); atualizar();
+}
+
+function atualizar() {
+  if (!E) return;
+  const agora = Date.now();
+  for (const el of document.querySelectorAll('.ln')) {
+    const k = el.dataset.k, x = mapa.get(k); if (!x) continue;
+    const a = pendente[k] ?? (mexendo[k] && agora - mexendo[k] < 900 ? null : num(k));
+    if (a != null) {
+      const p = (a * 100).toFixed(2) + '%', fi = el.querySelector('.fd i'), fb = el.querySelector('.fd b');
+      if (tablet) { fi.style.height = p; fi.style.width = ''; fb.style.bottom = p; fb.style.left = ''; } else { fi.style.width = p; fi.style.height = ''; fb.style.left = p; fb.style.bottom = ''; }
+      el.querySelector('.db').textContent = txtDb(a) + ' dB';
+    }
+    const mu = el.querySelector('.mu'); const mudo = !!x.km && val(x.km) === '1';
+    mu.classList.toggle('on', mudo); el.classList.toggle('mudo', mudo);
+    // medidor: o nível do canal (na camada de retorno, o do canal — a mesa não mede cada envio)
+    const vu = E.vu, arr = vu && { i: vu.e, l: vu.l, p: vu.p, f: vu.f, s: vu.s, a: vu.a, m: vu.m }[x.t];
+    let db = arr ? Math.max(arr[x.n] ?? -128, x.par != null ? (arr[x.par] ?? -128) : -128, x.t === 'm' ? (arr[1] ?? -128) : -128) : -128;
+    const w = db <= -60 ? 0 : Math.min(100, (db + 60) / 60 * 100), b = el.querySelector('.vu');
+    if (tablet) b.style.height = w + '%'; else b.style.width = w + '%';
+    b.classList.toggle('alto', db > -12 && db <= -3); b.classList.toggle('pico', db > -3);
+  }
+}
+
+// ---------- mexer ----------
+function definir(k, v) { pendente[k] = v; if (E?.v) E.v[k] = String(v); clearTimeout(envioTimer); envioTimer = setTimeout(enviar, 50); }
+async function enviar() {
+  const v = {}; for (const k in pendente) { v[k] = k.endsWith('.mute') ? String(Math.round(pendente[k])) : Number(pendente[k]).toFixed(4); delete pendente[k]; }   // mudo vai "0"/"1", como o app da mesa
+  if (!Object.keys(v).length) return;
+  try {
+    const r = await fetch('/api/definir?t=' + encodeURIComponent(token), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ v }) });
+    if (r.status === 401) { esquecer(); return mostrarPareamento('Este aparelho foi tirado no computador. Pareie de novo.'); }
+    const j = await r.json(); if (!j.ok) toast('A mesa não está conectada no computador');
+  } catch (_) { toast('Sem conexão — não chegou à mesa'); }
+}
+function ligar() {
+  for (const fd of document.querySelectorAll('.fd')) {
+    const k = fd.dataset.k; let st = null;
+    // (0.0.13) no tablet o fader é em pé: para cima/baixo mexe, para os lados rola os canais
+    fd.addEventListener('pointerdown', e => { const r = fd.getBoundingClientRect(); st = { x: e.clientX, y: e.clientY, a: num(k), w: (tablet ? r.height : r.width) || 1, andou: false, id: e.pointerId }; });
+    fd.addEventListener('pointermove', e => {
+      if (!st || e.pointerId !== st.id) return;
+      const mov = () => tablet ? st.y - e.clientY : e.clientX - st.x, cruz = () => tablet ? e.clientX - st.x : e.clientY - st.y;
+      let dx = mov();
+      if (!st.andou) {
+        if (Math.abs(cruz()) > 10 && Math.abs(dx) < 10) { st = null; return; }   // é rolagem da lista
+        if (Math.abs(dx) < 8) return;
+        st.andou = true; st.x = e.clientX; st.y = e.clientY; dx = 0; try { fd.setPointerCapture(e.pointerId); } catch (_) {} fd.classList.add('mexendo');
+      }
+      e.preventDefault();
+      let a = Math.min(1, Math.max(0, st.a + dx / st.w * 0.8));
+      const z = ZERO; if (Math.abs(a - z) < 0.006 && Math.abs(st.a - z) > 0.006) { a = z; vibrar(8); }   // "trava" de leve no 0 dB
+      const x = mapa.get(k); mexendo[k] = Date.now(); definir(k, a); if (x?.k2) { mexendo[x.k2] = Date.now(); definir(x.k2, a); }
+      atualizar();
+    });
+    const soltar = () => { st = null; fd.classList.remove('mexendo'); };
+    fd.addEventListener('pointerup', soltar); fd.addEventListener('pointercancel', soltar);
+  }
+  for (const b of document.querySelectorAll('.mu')) b.onclick = () => {
+    const x = [...mapa.values()].find(q => q.km === b.dataset.km); if (!x) return;
+    vibrar(); const novo = val(x.km) === '1' ? 0 : 1; definir(x.km, novo); if (x.km2) definir(x.km2, novo); atualizar();
+  };
+  // toque duplo no número: volta a 0 dB
+  for (const d of document.querySelectorAll('.db')) { let t0 = 0; d.onclick = () => { const agora = Date.now(); if (agora - t0 < 350) { const k = d.closest('.ln').dataset.k, x = mapa.get(k); definir(k, ZERO); if (x?.k2) definir(x.k2, ZERO); vibrar(); atualizar(); } t0 = agora; }; }
+}
+
+// ---------- conversa com o computador ----------
+async function puxar() {
+  clearTimeout(relogio);
+  if (!token) return mostrarPareamento();
+  try {
+    const r = await fetch(`/api/estado?t=${encodeURIComponent(token)}&c=${encodeURIComponent(camada)}`, { cache: 'no-store' });
+    if (r.status === 401) { esquecer(); return mostrarPareamento('Este aparelho foi tirado no computador. Pareie de novo.'); }
+    const j = await r.json();
+    perfil = j.perfil; $('#quem').textContent = j.nome || '';
+    // (0.0.13) tablet do operador: o programa completo, igual ao do computador (o celular fica nesta tela enxuta)
+    if (perfil === 'operador' && tablet && ler('mesa.celular.enxuta') !== '1' && window.fetch && window.PointerEvent) { location.replace('/app/index.html'); return; }
+    if (j.mesa) {
+      const novo = j.mesa;
+      if (novo.camada !== camada) { camada = novo.camada; gravar(CH_CAM, camada); }
+      for (const k in pendente) novo.v[k] = String(pendente[k]);   // o que ainda vai sair não volta para trás
+      E = novo;
+      const est = camada + '|' + vista + '|' + JSON.stringify(E.vistas || []) + '|' + Object.keys(E.v).filter(k => /\.(name|color|stereoIndex|matrix)$/.test(k)).map(k => k + '=' + E.v[k]).join(',') + '|' + tiras().map(x => x.k).join(',');
+      if (est !== estrutura) { estrutura = est; montar(); } else atualizar();
+      if (!E.conectada) $('#faixa').hidden = false, $('#faixa').textContent = 'O computador está sem a mesa conectada';
+      else $('#faixa').textContent = 'Reconectando…';
+    }
+    ultimoOk = Date.now(); conectado(!!j.mesa?.conectada);
+  } catch (_) { $('#faixa').textContent = 'Reconectando…'; conectado(false); }
+  relogio = setTimeout(puxar, document.visibilityState === 'visible' ? 250 : 3000);
+}
+
+function esquecer() { token = ''; gravar(CHAVE, ''); }
+function mostrarPareamento(msg) {
+  $('#par').hidden = false;
+  $('#parErro').textContent = msg || '';
+  if (!$('#parNome').value) { const u = navigator.userAgent, m = /Android[^;]*;\s*([^;)]+?)(?:\s+Build|\))/.exec(u); $('#parNome').value = /iPad/i.test(u) ? 'iPad' : /iPhone/i.test(u) ? 'iPhone' : m ? m[1].trim().slice(0, 40) : 'Celular'; }
+  const c = new URLSearchParams(location.search).get('c');
+  if (c && !$('#parCod').value) $('#parCod').value = c;
+}
+async function parear() {
+  const codigo = $('#parCod').value.replace(/\D/g, ''), nomeAp = $('#parNome').value.trim() || 'Celular';
+  if (codigo.length !== 4) { $('#parErro').textContent = 'Digite os 4 números do código.'; return; }
+  $('#parOk').disabled = true;
+  try {
+    const r = await fetch('/api/parear', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ codigo, nome: nomeAp }) });
+    const j = await r.json();
+    if (r.status === 429) { $('#parErro').textContent = 'Muitas tentativas erradas. Espere 1 minuto e use o código novo que aparece no computador.'; return; }
+    if (!j.ok) { $('#parErro').textContent = 'Código errado ou vencido. Confira o código que aparece agora no computador.'; return; }
+    token = j.token; gravar(CHAVE, token); perfil = j.perfil;
+    camada = /^aux:\d+$/.test(perfil) ? 'a.' + perfil.slice(4) : 'lr'; gravar(CH_CAM, camada);
+    history.replaceState(null, '', '/');
+    $('#par').hidden = true; estrutura = ''; puxar();
+  } catch (_) { $('#parErro').textContent = 'Não consegui falar com o computador. Confira o Wi-Fi.'; }
+  finally { $('#parOk').disabled = false; }
+}
+
+async function manterAcesa() { try { if ('wakeLock' in navigator && document.visibilityState === 'visible') await navigator.wakeLock.request('screen'); } catch (_) {} }
+$('#selCamada').onchange = e => { camada = e.target.value; gravar(CH_CAM, camada); estrutura = ''; E = null; $('#lista').innerHTML = ''; puxar(); };
+$('#railMenu').onclick = () => { const on = !$('#rail').classList.contains('aberto'); $('#rail').classList.toggle('aberto', on); gravar('mesa.celular.rail', on ? '1' : ''); };
+$('#rail').classList.toggle('aberto', ler('mesa.celular.rail') === '1');
+$('#selVista').onchange =e => { vista = e.target.value; gravar(CH_VISTA, vista); estrutura = ''; montar(); };
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { manterAcesa(); puxar(); } });
+document.addEventListener('click', manterAcesa, { once: true });
+setInterval(() => { if (token && Date.now() - ultimoOk > 3000) conectado(false); }, 1500);
+$('#parOk').addEventListener('click', parear);
+$('#parCod').addEventListener('keydown', e => { if (e.key === 'Enter') parear(); });
+if (token) puxar(); else mostrarPareamento();
+</script>
+</body>
+</html>
